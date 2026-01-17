@@ -69,7 +69,7 @@ npm run dist
 # Build for specific platforms
 npm run dist:win    # Windows (exe, portable)
 npm run dist:mac    # macOS (dmg, zip)
-npm run dist:linux  # Linux (AppImage, deb, rpm)
+npm run dist:linux  # Linux (AppImage, deb)
 ```
 
 Built packages are output to the `release/` directory.
@@ -83,9 +83,14 @@ Built packages are output to the `release/` directory.
 **macOS:**
 - Builds `.dmg` disk image and `.zip` archive
 - Notarization requires Apple Developer credentials (`APPLE_ID`, `APPLE_APP_SPECIFIC_PASSWORD`, `APPLE_TEAM_ID`)
+- **Unsigned app warning:** Since the app is not signed with an Apple Developer certificate, macOS may show "OpenMap Studio is damaged and can't be opened." To fix this, run in Terminal:
+  ```bash
+  xattr -cr /Applications/OpenMap\ Studio.app
+  ```
+  Then open the app normally.
 
 **Linux:**
-- Builds `.AppImage`, `.deb`, and `.rpm` packages
+- Builds `.AppImage` and `.deb` packages
 - AppImage works on most distributions without installation
 
 ## Project Structure
