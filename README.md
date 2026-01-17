@@ -138,7 +138,3 @@ Edit `electron/main.ts` to customize:
 ## License
 
 MIT License - see [LICENSE](LICENSE) for details.
-
-## Author
-
-Qiusheng Wu
