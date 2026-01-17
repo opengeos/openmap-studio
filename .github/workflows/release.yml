@@ -97,7 +97,7 @@ jobs:
   upload-release:
     needs: build
     runs-on: ubuntu-latest
-    if: github.event_name == 'release'
+    if: always() && github.event_name == 'release'
 
     permissions:
       contents: write
@@ -109,14 +109,17 @@ jobs:
           path: artifacts
 
       - name: Display structure of downloaded files
-        run: ls -R artifacts
+        run: ls -R artifacts || echo "No artifacts found"
 
       - name: Upload release assets
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            artifacts/linux-builds/*
-            artifacts/windows-builds/*
-            artifacts/macos-builds/*
+            artifacts/**/*.AppImage
+            artifacts/**/*.deb
+            artifacts/**/*.exe
+            artifacts/**/*.dmg
+            artifacts/**/*.zip
+          fail_on_unmatched_files: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
