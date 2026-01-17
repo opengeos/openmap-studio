@@ -1,0 +1,11 @@
+node_modules
+dist
+dist-electron
+release
+.git
+.github
+*.log
+*.md
+.DS_Store
+.vscode
+.idea
