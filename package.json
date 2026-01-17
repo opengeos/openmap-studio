@@ -1,5 +1,5 @@
 {
-  "name": "maplibre-electron",
+  "name": "openmap-studio",
   "version": "0.1.0",
   "description": "An electron app for MapLibre GL JS",
   "keywords": [
@@ -8,13 +8,13 @@
     "maps",
     "gis"
   ],
-  "homepage": "https://github.com/opengeo/maplibre-electron#readme",
+  "homepage": "https://github.com/opengeos/openmap-studio#readme",
   "bugs": {
-    "url": "https://github.com/opengeo/maplibre-electron/issues"
+    "url": "https://github.com/opengeos/openmap-studio/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/opengeo/maplibre-electron.git"
+    "url": "git+https://github.com/opengeos/openmap-studio.git"
   },
   "license": "MIT",
   "author": "Qiusheng Wu <giswqs@gmail.com>",
