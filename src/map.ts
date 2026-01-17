@@ -1,6 +1,9 @@
 import maplibregl from 'maplibre-gl'
 import { LayerControl } from 'maplibre-gl-layer-control';
 import 'maplibre-gl-layer-control/style.css';
+import {
+  VectorDatasetControl,
+} from 'maplibre-gl-components';
 
 /**
  * Initializes a MapLibre GL map in the specified container.
@@ -32,6 +35,20 @@ export function initMap(container: string): maplibregl.Map {
 
   map.addControl(layerControl, 'top-right');
 
+  // Add vector dataset control - load GeoJSON files via upload or drag-drop
+  const vectorControl = new VectorDatasetControl({
+    fitBounds: true,
+    fitBoundsPadding: 50,
+    defaultStyle: {
+      fillColor: '#3388ff',
+      fillOpacity: 0.3,
+      strokeColor: '#3388ff',
+      strokeWidth: 2,
+      circleRadius: 6,
+      circleColor: '#3388ff',
+    },
+  });
+  map.addControl(vectorControl, 'top-left');
 
   return map
 }
