@@ -18,8 +18,8 @@ A cross-platform desktop application for interactive maps using MapLibre GL JS, 
 
 ```bash
 # Clone the repository
-git clone https://github.com/opengeo/maplibre-electron.git
-cd maplibre-electron
+git clone https://github.com/opengeos/openmap-studio.git
+cd openmap-studio
 
 # Install dependencies
 npm install
@@ -91,7 +91,7 @@ Built packages are output to the `release/` directory.
 ## Project Structure
 
 ```
-maplibre-electron/
+openmap-studio/
 ├── electron/
 │   ├── main.ts              # Electron main process
 │   └── preload.ts           # Preload script for IPC
