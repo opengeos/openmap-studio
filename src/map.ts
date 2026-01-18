@@ -64,7 +64,7 @@ class HomeControl implements IControl {
  *
  * @param container - The ID of the HTML element to contain the map.
  * @param config - The map configuration specifying basemap and controls.
- * @param onSettings - Callback function to invoke when settings button is clicked.
+ * @param onSettings - Callback function to invoke when the home button is clicked.
  * @returns The initialized MapLibre map instance.
  */
 export function initMap(
