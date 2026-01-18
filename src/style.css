@@ -8,9 +8,240 @@ html, body {
   width: 100%;
   height: 100%;
   overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
 }
 
 #map {
   width: 100%;
   height: 100%;
+  display: none;
+}
+
+/* Landing Page Styles */
+#landing {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  overflow-y: auto;
+  padding: 2rem;
+}
+
+.landing-container {
+  max-width: 800px;
+  width: 100%;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  padding: 2.5rem;
+  margin: 1rem 0;
+}
+
+.landing-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.landing-header h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin-bottom: 0.5rem;
+}
+
+.landing-header p {
+  font-size: 1.1rem;
+  color: #666;
+}
+
+.landing-section {
+  margin-bottom: 2rem;
+}
+
+.landing-section h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #eee;
+}
+
+/* Basemap Grid */
+.basemap-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 1rem;
+}
+
+.basemap-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.75rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: #fafafa;
+}
+
+.basemap-card:hover {
+  border-color: #667eea;
+  background: #f5f5ff;
+}
+
+.basemap-card.selected {
+  border-color: #667eea;
+  background: #f0f0ff;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+}
+
+.basemap-card input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.basemap-preview {
+  width: 100%;
+  height: 60px;
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+}
+
+.basemap-name {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #333;
+  text-align: center;
+  line-height: 1.3;
+}
+
+/* Controls List */
+.controls-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+
+.control-item {
+  display: flex;
+  align-items: flex-start;
+  padding: 0.75rem 1rem;
+  background: #f8f8f8;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.control-item:hover {
+  background: #f0f0f0;
+}
+
+.control-item input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  margin-right: 0.75rem;
+  margin-top: 2px;
+  accent-color: #667eea;
+  cursor: pointer;
+}
+
+.control-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.control-label {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #333;
+}
+
+.control-description {
+  font-size: 0.8rem;
+  color: #777;
+  margin-top: 2px;
+}
+
+/* Launch Button */
+.landing-actions {
+  display: flex;
+  justify-content: center;
+  padding-top: 1rem;
+}
+
+.launch-button {
+  padding: 0.875rem 3rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #ffffff;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.launch-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+}
+
+.launch-button:active {
+  transform: translateY(0);
+}
+
+/* Home Control Button */
+.home-control-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 29px;
+  height: 29px;
+  padding: 0;
+  background: #fff;
+  border: none;
+  cursor: pointer;
+  color: #333;
+}
+
+.home-control-btn:hover {
+  background: #f0f0f0;
+}
+
+.home-control-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 600px) {
+  #landing {
+    padding: 1rem;
+  }
+
+  .landing-container {
+    padding: 1.5rem;
+  }
+
+  .landing-header h1 {
+    font-size: 1.75rem;
+  }
+
+  .basemap-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .controls-list {
+    grid-template-columns: 1fr;
+  }
+
+  .launch-button {
+    width: 100%;
+  }
 }
