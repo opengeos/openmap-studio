@@ -12,6 +12,20 @@ import type { MapConfig } from './config';
 import { BASEMAP_OPTIONS } from './config';
 
 /**
+ * Callback for when a layer is renamed.
+ */
+export type LayerRenameCallback = (layerId: string, oldName: string, newName: string) => void;
+
+/**
+ * Result object returned from initMap containing the map and optional controls.
+ */
+export interface InitMapResult {
+  map: maplibregl.Map;
+  vectorControl: VectorDatasetControl | null;
+  layerControl: LayerControl | null;
+}
+
+/**
  * Custom control to navigate back to the home/landing page.
  */
 class HomeControl implements IControl {
@@ -60,24 +74,37 @@ class HomeControl implements IControl {
 }
 
 /**
+ * Options for initializing the map.
+ */
+export interface InitMapOptions {
+  /** Callback when a layer is renamed in the layer control */
+  onLayerRename?: LayerRenameCallback;
+}
+
+/**
  * Initializes a MapLibre GL map in the specified container with the given configuration.
  *
  * @param container - The ID of the HTML element to contain the map.
  * @param config - The map configuration specifying basemap and controls.
  * @param onSettings - Callback function to invoke when the home button is clicked.
- * @returns The initialized MapLibre map instance.
+ * @param options - Additional options for map initialization.
+ * @returns Object containing the initialized map and vector control (if enabled).
  */
 export function initMap(
   container: string,
   config: MapConfig,
-  onSettings: () => void
-): maplibregl.Map {
+  onSettings: () => void,
+  options?: InitMapOptions
+): InitMapResult {
   const map = new maplibregl.Map({
     container,
     style: config.basemapStyleUrl,
     center: config.initialCenter,
     zoom: config.initialZoom,
   });
+
+  let vectorControl: VectorDatasetControl | null = null;
+  let layerControl: LayerControl | null = null;
 
   // Always add the home control
   map.addControl(new HomeControl(onSettings), 'top-left');
@@ -108,19 +135,21 @@ export function initMap(
 
   // Add layer control if enabled
   if (config.controls.layerControl.enabled) {
-    const layerControl = new LayerControl({
+    console.log('[initMap] creating LayerControl with onLayerRename:', !!options?.onLayerRename);
+    layerControl = new LayerControl({
       collapsed: true,
       panelWidth: 360,
       panelMinWidth: 240,
       panelMaxWidth: 450,
       basemapStyleUrl: config.basemapStyleUrl,
+      onLayerRename: options?.onLayerRename,
     });
     map.addControl(layerControl, config.controls.layerControl.position);
   }
 
   // Add vector dataset control if enabled
   if (config.controls.vectorDataset.enabled) {
-    const vectorControl = new VectorDatasetControl({
+    vectorControl = new VectorDatasetControl({
       fitBounds: true,
       fitBoundsPadding: 50,
       defaultStyle: {
@@ -184,5 +213,5 @@ export function initMap(
     map.addControl(basemapControl, config.controls.basemapSwitcher.position);
   }
 
-  return map;
+  return { map, vectorControl, layerControl };
 }
