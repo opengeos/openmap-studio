@@ -37,6 +37,7 @@ export function createLandingPage(
   setupBasemapSelection(landingEl, config, () => launchMap(landingEl, mapEl, config, onLaunch));
   setupControlToggles(landingEl, config);
   setupLaunchButton(landingEl, mapEl, config, onLaunch);
+  setupOpenFileButton();
 }
 
 /**
@@ -80,12 +81,23 @@ function buildLandingHTML(config: MapConfig): string {
     `;
   }).join('');
 
+  // Only show open file button if running in Electron
+  const openFileSection = window.electronAPI ? `
+      <section class="landing-section open-file-section">
+        <button type="button" class="open-file-button" id="open-file-btn">
+          Open Map File...
+        </button>
+      </section>
+  ` : '';
+
   return `
     <div class="landing-container">
       <header class="landing-header">
         <h1>OpenMap Studio</h1>
         <p>Configure your map experience</p>
       </header>
+
+      ${openFileSection}
 
       <section class="landing-section">
         <h2>Select Basemap</h2>
@@ -229,6 +241,24 @@ function setupLaunchButton(
 
   launchBtn.addEventListener('click', () => {
     launchMap(landingEl, mapEl, config, onLaunch);
+  });
+}
+
+/**
+ * Sets up the open file button event handler.
+ */
+function setupOpenFileButton(): void {
+  const openBtn = document.getElementById('open-file-btn');
+  if (!openBtn || !window.electronAPI) return;
+
+  openBtn.addEventListener('click', async () => {
+    const result = await window.electronAPI!.showOpenDialog();
+    if (!result.canceled && result.filePath && result.content) {
+      // Dispatch a custom event that main.ts will handle
+      window.dispatchEvent(new CustomEvent('openmap:open-file', {
+        detail: { filePath: result.filePath, content: result.content }
+      }));
+    }
   });
 }
 

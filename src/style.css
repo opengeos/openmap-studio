@@ -219,6 +219,34 @@ html, body {
   height: 18px;
 }
 
+/* Open File Button */
+.open-file-section {
+  margin-bottom: 1.5rem;
+}
+
+.open-file-button {
+  width: 100%;
+  padding: 1rem;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #667eea;
+  background: transparent;
+  border: 2px dashed #667eea;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.open-file-button:hover {
+  background: rgba(102, 126, 234, 0.08);
+  border-color: #764ba2;
+  color: #764ba2;
+}
+
+.open-file-button:active {
+  background: rgba(102, 126, 234, 0.15);
+}
+
 /* Responsive Adjustments */
 @media (max-width: 600px) {
   #landing {
