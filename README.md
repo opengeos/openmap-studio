@@ -2,6 +2,9 @@
 
 A cross-platform desktop application for interactive maps using MapLibre GL JS, built with Electron, Vite, and TypeScript.
 
+[![Open in CodeSandbox](https://img.shields.io/badge/Open%20in-CodeSandbox-blue?logo=codesandbox)](https://codesandbox.io/p/github/opengeos/openmap-studio)
+[![Open in StackBlitz](https://img.shields.io/badge/Open%20in-StackBlitz-blue?logo=stackblitz)](https://stackblitz.com/github/opengeos/openmap-studio)
+
 ## Features
 
 - Full-screen interactive map with OpenStreetMap tiles
