@@ -30,7 +30,7 @@
     "dist:linux": "npm run build && electron-builder --linux"
   },
   "dependencies": {
-    "maplibre-gl": "^5.16.0",
+    "maplibre-gl": "^5.17.0",
     "maplibre-gl-layer-control": "^0.11.0",
     "maplibre-gl-components": "^0.6.0"
   },
