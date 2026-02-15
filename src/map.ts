@@ -9,6 +9,17 @@ import {
 } from 'maplibre-gl-components';
 import type { MapConfig } from './config';
 
+// Exclude internal helper layers created by drawing/analysis controls.
+const EXCLUDE_LAYERS: string[] = [
+  'usgs-lidar-*',
+  'lidar-*',
+  'mapbox-gl-draw-*',
+  'gl-draw-*',
+  'gm_*',
+  'inspect-highlight-*',
+  'measure-*',
+];
+
 /**
  * Callback for when a layer is renamed.
  */
@@ -97,6 +108,7 @@ export function initMap(
       panelMinWidth: 240,
       panelMaxWidth: 450,
       basemapStyleUrl: config.basemapStyleUrl,
+      excludeLayers: EXCLUDE_LAYERS,
       onLayerRename: options?.onLayerRename,
     });
     map.addControl(layerControl, 'top-right');
@@ -110,6 +122,7 @@ export function initMap(
       position: 'top-right',
       defaultControls: [...gridControlNames],
       basemapStyleUrl: config.basemapStyleUrl,
+      excludeLayers: EXCLUDE_LAYERS,
       collapsible: true,
       collapsed: true,
       showRowColumnControls: true,
