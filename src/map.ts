@@ -91,6 +91,7 @@ export function initMap(
     style: config.basemapStyleUrl,
     center: config.initialCenter,
     zoom: config.initialZoom,
+    maxPitch: 85,
   });
 
   let vectorControl: VectorDatasetControl | null = null;
