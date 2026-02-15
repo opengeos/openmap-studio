@@ -12,12 +12,42 @@ A cross-platform desktop application for interactive maps using MapLibre GL JS, 
 - Cross-platform support (Windows, macOS, Linux)
 - Hot reload development environment
 
-## Prerequisites
+## Installation
+
+Download the latest release for your platform from the [Releases](https://github.com/opengeos/openmap-studio/releases) page:
+
+| Platform | Download |
+|----------|----------|
+| Windows | `.exe` installer or portable `.exe` |
+| macOS | `.dmg` disk image |
+| Linux | `.AppImage` or `.deb` package |
+
+### Platform-specific Notes
+
+**Windows:**
+- Run the `.exe` installer or use the portable version directly
+- Windows may show a SmartScreen warning for unsigned apps - click "More info" then "Run anyway"
+
+**macOS:**
+- Open the `.dmg` and drag OpenMap Studio to Applications
+- Since the app is not signed with an Apple Developer certificate, macOS may show "OpenMap Studio is damaged and can't be opened." To fix this, run in Terminal:
+  ```bash
+  xattr -cr /Applications/OpenMap\ Studio.app
+  ```
+  Then open the app normally.
+
+**Linux:**
+- **AppImage:** Make it executable (`chmod +x *.AppImage`) and run directly - works on most distributions
+- **Deb:** Install with `sudo dpkg -i openmap-studio_*.deb`
+
+## Development
+
+### Prerequisites
 
 - [Node.js](https://nodejs.org/) 18.x or higher
 - npm 9.x or higher
 
-## Installation
+### Setup
 
 ```bash
 # Clone the repository
@@ -27,10 +57,6 @@ cd openmap-studio
 # Install dependencies
 npm install
 ```
-
-## Usage
-
-### Development
 
 Start the development server with hot reload:
 
@@ -61,7 +87,7 @@ Preview the production build locally:
 npm run preview
 ```
 
-## Building Distributions
+### Building Distributions
 
 Build distributable packages for your platform:
 
@@ -77,24 +103,9 @@ npm run dist:linux  # Linux (AppImage, deb)
 
 Built packages are output to the `release/` directory.
 
-### Platform-specific Notes
-
-**Windows:**
-- Builds `.exe` installer and portable executable
-- Code signing requires setting `CSC_LINK` and `CSC_KEY_PASSWORD` environment variables
-
-**macOS:**
-- Builds `.dmg` disk image and `.zip` archive
-- Notarization requires Apple Developer credentials (`APPLE_ID`, `APPLE_APP_SPECIFIC_PASSWORD`, `APPLE_TEAM_ID`)
-- **Unsigned app warning:** Since the app is not signed with an Apple Developer certificate, macOS may show "OpenMap Studio is damaged and can't be opened." To fix this, run in Terminal:
-  ```bash
-  xattr -cr /Applications/OpenMap\ Studio.app
-  ```
-  Then open the app normally.
-
-**Linux:**
-- Builds `.AppImage` and `.deb` packages
-- AppImage works on most distributions without installation
+**Code Signing (optional):**
+- **Windows:** Set `CSC_LINK` and `CSC_KEY_PASSWORD` environment variables
+- **macOS:** Set `APPLE_ID`, `APPLE_APP_SPECIFIC_PASSWORD`, and `APPLE_TEAM_ID` for notarization
 
 ## Project Structure
 
