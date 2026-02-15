@@ -1,10 +1,11 @@
 import 'maplibre-gl/dist/maplibre-gl.css';
+import 'maplibre-gl-components/style.css';
 import './style.css';
 import { createLandingPage } from './landing';
 import { initMap } from './map';
 import { loadConfig, saveConfig, getDefaultConfig, type MapConfig } from './config';
 import { mapState, parseOpenMapFile, fileStateToConfig } from './map-state';
-import type { VectorDatasetControl } from 'maplibre-gl-components';
+import type { VectorDatasetControl, VectorDatasetLoadEvent } from 'maplibre-gl-components';
 import type { LayerControl } from 'maplibre-gl-layer-control';
 import type { VectorDatasetState } from './types/openmap-file';
 
@@ -48,6 +49,35 @@ function showLandingPage(config?: MapConfig): void {
 }
 
 /**
+ * Called when the user clicks the Home button. If there are unsaved changes (Electron),
+ * prompts to save before going to the landing page.
+ */
+function onHomeClick(): void {
+  const electronAPI = window.electronAPI;
+  if (!mapState.isDirty || !electronAPI) {
+    showLandingPage();
+    return;
+  }
+  electronAPI.showSaveBeforeLeaveDialog().then((choice) => {
+    if (choice === 'cancel') return;
+    if (choice === 'dontSave') {
+      showLandingPage();
+      return;
+    }
+    // choice === 'save'
+    if (mapState.currentFilePath) {
+      saveToFile(mapState.currentFilePath!).then(() => showLandingPage());
+    } else {
+      electronAPI.showSaveDialog(undefined).then((result) => {
+        if (!result.canceled && result.filePath) {
+          saveToFile(result.filePath).then(() => showLandingPage());
+        }
+      });
+    }
+  });
+}
+
+/**
  * Launches the map with the given configuration.
  *
  * @param config - The map configuration.
@@ -59,7 +89,7 @@ function launchMap(config: MapConfig): maplibregl.Map {
 
   console.log('[launchMap] initializing map with onLayerRename callback');
   // Initialize map with the config
-  const result = initMap('map', config, showLandingPage, {
+  const result = initMap('map', config, onHomeClick, {
     onLayerRename: (layerId, oldName, newName) => {
       console.log('[onLayerRename] layerId:', layerId, 'oldName:', oldName, 'newName:', newName);
 
@@ -88,7 +118,7 @@ function launchMap(config: MapConfig): maplibregl.Map {
 
   // Set up dataset event listeners if vector control is enabled
   if (vectorControl) {
-    vectorControl.on('load', (event) => {
+    vectorControl.on('load', (event: VectorDatasetLoadEvent) => {
       if (event.dataset && map) {
         // Check if this dataset already exists (e.g., when restoring from file)
         const existingIndex = mapState.datasets.findIndex(d => d.name === event.dataset!.filename);
@@ -131,7 +161,7 @@ function launchMap(config: MapConfig): maplibregl.Map {
             // Match by layer type (fill, line, circle, etc.)
             oldStyles.forEach(savedStyle => {
               // Find matching new layer by type
-              const matchingNewLayerId = newLayerIds.find(newId => {
+              const matchingNewLayerId = newLayerIds.find((newId: string) => {
                 const layer = map!.getLayer(newId);
                 return layer && layer.type === savedStyle.type;
               });

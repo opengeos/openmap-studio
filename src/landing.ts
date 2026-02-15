@@ -1,9 +1,5 @@
-import type { MapConfig, ControlType } from './config';
-import {
-  BASEMAP_OPTIONS,
-  CONTROL_OPTIONS,
-  getDefaultConfig,
-} from './config';
+import type { MapConfig } from './config';
+import { BASEMAP_OPTIONS, getDefaultConfig } from './config';
 
 /**
  * Creates and displays the landing page, invoking the callback when the user launches the map.
@@ -42,13 +38,13 @@ export function createLandingPage(
 
 /**
  * Builds the HTML string for the landing page.
- *
- * @param config - The current map configuration.
- * @returns The HTML string for the landing page.
  */
 function buildLandingHTML(config: MapConfig): string {
   const basemapCards = BASEMAP_OPTIONS.map((basemap) => {
     const isSelected = basemap.id === config.basemapId;
+    const previewStyle = basemap.thumbnail
+      ? `background-image: url(${basemap.thumbnail}); background-size: cover; background-position: center;`
+      : `background: ${getBasemapPreviewColor(basemap.id)}`;
     return `
       <label class="basemap-card ${isSelected ? 'selected' : ''}" data-basemap-id="${basemap.id}">
         <input
@@ -57,26 +53,8 @@ function buildLandingHTML(config: MapConfig): string {
           value="${basemap.id}"
           ${isSelected ? 'checked' : ''}
         />
-        <div class="basemap-preview" style="background: ${getBasemapPreviewColor(basemap.id)}"></div>
+        <div class="basemap-preview" style="${previewStyle}"></div>
         <span class="basemap-name">${basemap.name}</span>
-      </label>
-    `;
-  }).join('');
-
-  const controlItems = CONTROL_OPTIONS.map((control) => {
-    const isEnabled = config.controls[control.type].enabled;
-    return `
-      <label class="control-item">
-        <input
-          type="checkbox"
-          name="control-${control.type}"
-          data-control-type="${control.type}"
-          ${isEnabled ? 'checked' : ''}
-        />
-        <div class="control-info">
-          <span class="control-label">${control.label}</span>
-          <span class="control-description">${control.description}</span>
-        </div>
       </label>
     `;
   }).join('');
@@ -107,9 +85,16 @@ function buildLandingHTML(config: MapConfig): string {
       </section>
 
       <section class="landing-section">
-        <h2>Map Controls</h2>
+        <h2>Select Controls</h2>
         <div class="controls-list">
-          ${controlItems}
+          <label class="control-item">
+            <input type="checkbox" name="control-layer" id="control-layer" data-control="layerControl" ${config.layerControlEnabled ? 'checked' : ''} />
+            <span class="control-label">Layer Control</span>
+          </label>
+          <label class="control-item">
+            <input type="checkbox" name="control-grid" id="control-grid" data-control="controlGrid" ${config.controlGridEnabled ? 'checked' : ''} />
+            <span class="control-label">Control Grid</span>
+          </label>
         </div>
       </section>
 
@@ -123,10 +108,7 @@ function buildLandingHTML(config: MapConfig): string {
 }
 
 /**
- * Gets a preview color for a basemap based on its id.
- *
- * @param basemapId - The basemap identifier.
- * @returns A CSS color string for the preview.
+ * Fallback gradient for basemap preview when thumbnail is missing or fails to load.
  */
 function getBasemapPreviewColor(basemapId: string): string {
   const colors: Record<string, string> = {
@@ -142,10 +124,6 @@ function getBasemapPreviewColor(basemapId: string): string {
 
 /**
  * Sets up event handlers for basemap selection.
- *
- * @param container - The landing page container element.
- * @param config - The map configuration to update.
- * @param onDoubleClickSelected - Callback when double-clicking on the selected basemap.
  */
 function setupBasemapSelection(
   container: HTMLElement,
@@ -157,12 +135,10 @@ function setupBasemapSelection(
 
   radios.forEach((radio) => {
     radio.addEventListener('change', () => {
-      // Update selection state
       cards.forEach((card) => {
         card.classList.toggle('selected', card.dataset.basemapId === radio.value);
       });
 
-      // Update config
       const selectedBasemap = BASEMAP_OPTIONS.find((b) => b.id === radio.value);
       if (selectedBasemap) {
         config.basemapId = selectedBasemap.id;
@@ -171,7 +147,6 @@ function setupBasemapSelection(
     });
   });
 
-  // Double-click on selected basemap to launch map
   cards.forEach((card) => {
     card.addEventListener('dblclick', () => {
       if (card.classList.contains('selected')) {
@@ -182,31 +157,20 @@ function setupBasemapSelection(
 }
 
 /**
- * Sets up event handlers for control toggle checkboxes.
- *
- * @param container - The landing page container element.
- * @param config - The map configuration to update.
+ * Sets up event handlers for Layer Control and Control Grid toggles.
  */
 function setupControlToggles(container: HTMLElement, config: MapConfig): void {
-  const checkboxes = container.querySelectorAll<HTMLInputElement>('input[data-control-type]');
-
-  checkboxes.forEach((checkbox) => {
-    checkbox.addEventListener('change', () => {
-      const controlType = checkbox.dataset.controlType as ControlType;
-      if (controlType && config.controls[controlType]) {
-        config.controls[controlType].enabled = checkbox.checked;
-      }
+  container.querySelectorAll<HTMLInputElement>('input[data-control]').forEach((input) => {
+    input.addEventListener('change', () => {
+      const key = input.dataset.control as 'layerControl' | 'controlGrid';
+      if (key === 'layerControl') config.layerControlEnabled = input.checked;
+      if (key === 'controlGrid') config.controlGridEnabled = input.checked;
     });
   });
 }
 
 /**
  * Launches the map by hiding the landing page and invoking the callback.
- *
- * @param landingEl - The landing page container element.
- * @param mapEl - The map container element.
- * @param config - The map configuration.
- * @param onLaunch - Callback to invoke with the config when launching.
  */
 function launchMap(
   landingEl: HTMLElement,
@@ -214,21 +178,13 @@ function launchMap(
   config: MapConfig,
   onLaunch: (config: MapConfig) => void
 ): void {
-  // Hide landing, show map
   landingEl.style.display = 'none';
   mapEl.style.display = 'block';
-
-  // Invoke callback with current config
   onLaunch(config);
 }
 
 /**
  * Sets up the launch button event handler.
- *
- * @param landingEl - The landing page container element.
- * @param mapEl - The map container element.
- * @param config - The map configuration.
- * @param onLaunch - Callback to invoke with the config when launching.
  */
 function setupLaunchButton(
   landingEl: HTMLElement,
@@ -254,7 +210,6 @@ function setupOpenFileButton(): void {
   openBtn.addEventListener('click', async () => {
     const result = await window.electronAPI!.showOpenDialog();
     if (!result.canceled && result.filePath && result.content) {
-      // Dispatch a custom event that main.ts will handle
       window.dispatchEvent(new CustomEvent('openmap:open-file', {
         detail: { filePath: result.filePath, content: result.content }
       }));

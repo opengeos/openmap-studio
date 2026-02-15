@@ -37,6 +37,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
   showSaveDialog: (defaultPath?: string) => ipcRenderer.invoke('file:save-dialog', defaultPath),
   writeFile: (filePath: string, content: string) => ipcRenderer.invoke('file:write', filePath, content),
 
+  // Save-before-leave dialog (returns 'save' | 'dontSave' | 'cancel')
+  showSaveBeforeLeaveDialog: () => ipcRenderer.invoke('dialog:save-before-leave'),
+
   // Menu state management
   updateMenuState: (mapIsOpen: boolean) => {
     ipcRenderer.send('app:update-menu-state', mapIsOpen)
