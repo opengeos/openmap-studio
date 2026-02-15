@@ -1,5 +1,5 @@
 import 'maplibre-gl/dist/maplibre-gl.css';
-import '../node_modules/maplibre-gl-components/dist/maplibre-gl-components.css';
+import 'maplibre-gl-components/style.css';
 import './style.css';
 import { createLandingPage } from './landing';
 import { initMap } from './map';
