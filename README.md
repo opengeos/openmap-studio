@@ -5,6 +5,8 @@ A cross-platform desktop application for interactive maps using MapLibre GL JS, 
 [![Open in CodeSandbox](https://img.shields.io/badge/Open%20in-CodeSandbox-blue?logo=codesandbox)](https://codesandbox.io/p/github/opengeos/openmap-studio)
 [![Open in StackBlitz](https://img.shields.io/badge/Open%20in-StackBlitz-blue?logo=stackblitz)](https://stackblitz.com/github/opengeos/openmap-studio)
 
+![](https://assets.gishub.org/images/openmap.png)
+
 ## Features
 
 - Full-screen interactive map with OpenStreetMap tiles
@@ -16,11 +18,11 @@ A cross-platform desktop application for interactive maps using MapLibre GL JS, 
 
 Download the latest release for your platform from the [Releases](https://github.com/opengeos/openmap-studio/releases) page:
 
-| Platform | Download |
-|----------|----------|
-| Windows | `.exe` installer or portable `.exe` |
-| macOS | `.dmg` disk image |
-| Linux | `.AppImage` or `.deb` package |
+| Platform | Download                            |
+| -------- | ----------------------------------- |
+| Windows  | `.exe` installer or portable `.exe` |
+| macOS    | `.dmg` disk image                   |
+| Linux    | `.AppImage` or `.deb` package       |
 
 ### Platform-specific Notes
 
@@ -127,15 +129,15 @@ openmap-studio/
 
 ## Scripts
 
-| Script | Description |
-|--------|-------------|
-| `npm run dev` | Start development server with hot reload |
-| `npm run build` | Build for production |
-| `npm run preview` | Preview production build |
-| `npm run dist` | Build distributable for current platform |
-| `npm run dist:win` | Build Windows distributable |
-| `npm run dist:mac` | Build macOS distributable |
-| `npm run dist:linux` | Build Linux distributable |
+| Script               | Description                              |
+| -------------------- | ---------------------------------------- |
+| `npm run dev`        | Start development server with hot reload |
+| `npm run build`      | Build for production                     |
+| `npm run preview`    | Preview production build                 |
+| `npm run dist`       | Build distributable for current platform |
+| `npm run dist:win`   | Build Windows distributable              |
+| `npm run dist:mac`   | Build macOS distributable                |
+| `npm run dist:linux` | Build Linux distributable                |
 
 ## Configuration
 
