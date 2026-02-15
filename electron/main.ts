@@ -278,10 +278,14 @@ function setupIpcHandlers(): void {
  */
 function createWindow(): void {
   const preloadPath = path.join(__dirname, 'preload.mjs')
+  const iconPath = VITE_DEV_SERVER_URL
+    ? path.join(__dirname, '../build/icon.png')
+    : path.join(__dirname, '../dist/icon.png')
 
   mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
+    icon: iconPath,
     webPreferences: {
       preload: preloadPath,
       contextIsolation: true,
