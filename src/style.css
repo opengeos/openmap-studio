@@ -69,6 +69,44 @@ html, body {
   border-bottom: 2px solid #eee;
 }
 
+.landing-info {
+  margin-bottom: 1rem;
+}
+
+.landing-info-text {
+  font-size: 0.9rem;
+  color: #555;
+  margin: 0;
+}
+
+/* Select Controls */
+.controls-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.control-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+  cursor: pointer;
+}
+
+.control-item input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #667eea;
+  cursor: pointer;
+}
+
+.control-item .control-label {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #333;
+}
+
 /* Basemap Grid */
 .basemap-grid {
   display: grid;
@@ -118,53 +156,6 @@ html, body {
   color: #333;
   text-align: center;
   line-height: 1.3;
-}
-
-/* Controls List */
-.controls-list {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 0.75rem;
-}
-
-.control-item {
-  display: flex;
-  align-items: flex-start;
-  padding: 0.75rem 1rem;
-  background: #f8f8f8;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-
-.control-item:hover {
-  background: #f0f0f0;
-}
-
-.control-item input[type="checkbox"] {
-  width: 18px;
-  height: 18px;
-  margin-right: 0.75rem;
-  margin-top: 2px;
-  accent-color: #667eea;
-  cursor: pointer;
-}
-
-.control-info {
-  display: flex;
-  flex-direction: column;
-}
-
-.control-label {
-  font-size: 0.95rem;
-  font-weight: 500;
-  color: #333;
-}
-
-.control-description {
-  font-size: 0.8rem;
-  color: #777;
-  margin-top: 2px;
 }
 
 /* Launch Button */
@@ -219,6 +210,40 @@ html, body {
   height: 18px;
 }
 
+/* Scale bar */
+.openmap-scale-bar {
+  padding: 4px 8px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 4px;
+  font-size: 11px;
+  color: #333;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+}
+
+.openmap-scale-bar-line {
+  display: block;
+  height: 3px;
+  background: #333;
+  border-radius: 1px;
+  margin-bottom: 2px;
+}
+
+.openmap-scale-bar-label {
+  display: block;
+  white-space: nowrap;
+}
+
+/* Mouse position */
+.openmap-mouse-position {
+  padding: 4px 8px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 4px;
+  font-size: 11px;
+  font-family: monospace;
+  color: #333;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+}
+
 /* Open File Button */
 .open-file-section {
   margin-bottom: 1.5rem;
@@ -263,10 +288,6 @@ html, body {
 
   .basemap-grid {
     grid-template-columns: repeat(2, 1fr);
-  }
-
-  .controls-list {
-    grid-template-columns: 1fr;
   }
 
   .launch-button {

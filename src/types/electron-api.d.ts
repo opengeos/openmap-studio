@@ -47,6 +47,9 @@ export interface ElectronAPI {
   /** Write content to a file */
   writeFile: (filePath: string, content: string) => Promise<void>;
 
+  /** Show "Save before leaving?" dialog; returns 'save' | 'dontSave' | 'cancel' */
+  showSaveBeforeLeaveDialog: () => Promise<'save' | 'dontSave' | 'cancel'>;
+
   // Menu state management
   /** Update menu item enabled states based on whether a map is open */
   updateMenuState: (mapIsOpen: boolean) => void;

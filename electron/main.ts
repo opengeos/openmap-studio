@@ -254,6 +254,23 @@ function setupIpcHandlers(): void {
   ipcMain.on('app:update-menu-state', (_event, isOpen: boolean) => {
     updateMenuState(isOpen)
   })
+
+  // Save-before-leave dialog when user clicks Home with unsaved changes
+  ipcMain.handle('dialog:save-before-leave', async () => {
+    if (!mainWindow) return 'cancel'
+    const result = await dialog.showMessageBox(mainWindow, {
+      type: 'question',
+      title: 'Unsaved changes',
+      message: 'Save map before going to the start page?',
+      buttons: ['Save', "Don't Save", 'Cancel'],
+      defaultId: 0,
+      cancelId: 2,
+    })
+    const choice = result.response
+    if (choice === 0) return 'save'
+    if (choice === 1) return 'dontSave'
+    return 'cancel'
+  })
 }
 
 /**

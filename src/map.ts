@@ -2,14 +2,12 @@ import maplibregl, { IControl } from 'maplibre-gl';
 import { LayerControl } from 'maplibre-gl-layer-control';
 import 'maplibre-gl-layer-control/style.css';
 import {
+  addControlGrid,
+  ALL_DEFAULT_CONTROLS,
   VectorDatasetControl,
-  SearchControl,
-  TerrainControl,
-  InspectControl,
-  BasemapControl,
+  type ControlGrid,
 } from 'maplibre-gl-components';
 import type { MapConfig } from './config';
-import { BASEMAP_OPTIONS } from './config';
 
 /**
  * Callback for when a layer is renamed.
@@ -17,12 +15,13 @@ import { BASEMAP_OPTIONS } from './config';
 export type LayerRenameCallback = (layerId: string, oldName: string, newName: string) => void;
 
 /**
- * Result object returned from initMap containing the map and optional controls.
+ * Result object returned from initMap.
  */
 export interface InitMapResult {
   map: maplibregl.Map;
   vectorControl: VectorDatasetControl | null;
   layerControl: LayerControl | null;
+  controlGrid: ControlGrid | null;
 }
 
 /**
@@ -32,20 +31,10 @@ class HomeControl implements IControl {
   private _container?: HTMLElement;
   private _onHome: () => void;
 
-  /**
-   * Creates a new HomeControl instance.
-   *
-   * @param onHome - Callback function to invoke when home button is clicked.
-   */
   constructor(onHome: () => void) {
     this._onHome = onHome;
   }
 
-  /**
-   * Called when the control is added to the map.
-   *
-   * @returns The control's container element.
-   */
   onAdd(): HTMLElement {
     this._container = document.createElement('div');
     this._container.className = 'maplibregl-ctrl maplibregl-ctrl-group';
@@ -64,9 +53,6 @@ class HomeControl implements IControl {
     return this._container;
   }
 
-  /**
-   * Called when the control is removed from the map.
-   */
   onRemove(): void {
     this._container?.remove();
     this._container = undefined;
@@ -77,18 +63,11 @@ class HomeControl implements IControl {
  * Options for initializing the map.
  */
 export interface InitMapOptions {
-  /** Callback when a layer is renamed in the layer control */
   onLayerRename?: LayerRenameCallback;
 }
 
 /**
- * Initializes a MapLibre GL map in the specified container with the given configuration.
- *
- * @param container - The ID of the HTML element to contain the map.
- * @param config - The map configuration specifying basemap and controls.
- * @param onSettings - Callback function to invoke when the home button is clicked.
- * @param options - Additional options for map initialization.
- * @returns Object containing the initialized map and vector control (if enabled).
+ * Initializes a MapLibre GL map. Layer Control and Control Grid are added when enabled in config.
  */
 export function initMap(
   container: string,
@@ -104,38 +83,14 @@ export function initMap(
   });
 
   let vectorControl: VectorDatasetControl | null = null;
-  let layerControl: LayerControl | null = null;
+  let controlGrid: ControlGrid | null = null;
 
   // Always add the home control
   map.addControl(new HomeControl(onSettings), 'top-left');
 
-  // Add navigation control if enabled
-  if (config.controls.navigation.enabled) {
-    map.addControl(
-      new maplibregl.NavigationControl(),
-      config.controls.navigation.position
-    );
-  }
+  let layerControl: LayerControl | null = null;
 
-  // Add fullscreen control if enabled
-  if (config.controls.fullscreen.enabled) {
-    map.addControl(
-      new maplibregl.FullscreenControl(),
-      config.controls.fullscreen.position
-    );
-  }
-
-  // Add globe control if enabled
-  if (config.controls.globe.enabled) {
-    map.addControl(
-      new maplibregl.GlobeControl(),
-      config.controls.globe.position
-    );
-  }
-
-  // Add layer control if enabled
-  if (config.controls.layerControl.enabled) {
-    console.log('[initMap] creating LayerControl with onLayerRename:', !!options?.onLayerRename);
+  if (config.layerControlEnabled) {
     layerControl = new LayerControl({
       collapsed: true,
       panelWidth: 360,
@@ -144,12 +99,23 @@ export function initMap(
       basemapStyleUrl: config.basemapStyleUrl,
       onLayerRename: options?.onLayerRename,
     });
-    map.addControl(layerControl, config.controls.layerControl.position);
+    map.addControl(layerControl, 'top-right');
   }
 
-  // Add vector dataset control if enabled
-  if (config.controls.vectorDataset.enabled) {
-    vectorControl = new VectorDatasetControl({
+  if (config.controlGridEnabled) {
+    // All 26 default controls minus vectorDataset; we add our own with custom options
+    const gridControlNames = ALL_DEFAULT_CONTROLS.filter((n) => n !== 'vectorDataset');
+    controlGrid = addControlGrid(map as any, {
+      title: 'Map Tools',
+      position: 'top-right',
+      defaultControls: [...gridControlNames],
+      basemapStyleUrl: config.basemapStyleUrl,
+      collapsible: true,
+      collapsed: true,
+      showRowColumnControls: true,
+    });
+
+    const ourVectorControl = new VectorDatasetControl({
       fitBounds: true,
       fitBoundsPadding: 50,
       defaultStyle: {
@@ -161,57 +127,16 @@ export function initMap(
         circleColor: '#3388ff',
       },
     });
-    map.addControl(vectorControl, config.controls.vectorDataset.position);
+    controlGrid.addControl(ourVectorControl);
+    vectorControl = ourVectorControl;
+
+    if (layerControl) {
+      const adapters = controlGrid.getAdapters();
+      adapters.forEach((adapter) => {
+        layerControl!.registerCustomAdapter(adapter);
+      });
+    }
   }
 
-  // Add search control if enabled
-  if (config.controls.search.enabled) {
-    const searchControl = new SearchControl({
-      placeholder: 'Search for a place...',
-      flyToZoom: 12,
-      showMarker: true,
-    });
-    map.addControl(searchControl, config.controls.search.position);
-  }
-
-  // Add terrain control if enabled
-  if (config.controls.terrain.enabled) {
-    const terrainControl = new TerrainControl({
-      exaggeration: 1.5,
-      hillshade: true,
-    });
-    map.addControl(terrainControl, config.controls.terrain.position);
-  }
-
-  // Add inspect control if enabled
-  if (config.controls.inspect.enabled) {
-    const inspectControl = new InspectControl({
-      highlightStyle: {
-        strokeColor: '#ff6600',
-        strokeWidth: 3,
-      },
-    });
-    map.addControl(inspectControl, config.controls.inspect.position);
-  }
-
-  // Add basemap switcher control if enabled
-  if (config.controls.basemapSwitcher.enabled) {
-    // Convert BASEMAP_OPTIONS to the format expected by BasemapControl
-    const basemaps = BASEMAP_OPTIONS.map((b) => ({
-      id: b.id,
-      name: b.name,
-      styleUrl: b.styleUrl,
-      type: 'style' as const,
-    }));
-
-    const basemapControl = new BasemapControl({
-      basemaps,
-      defaultBasemap: config.basemapId,
-      displayMode: 'list',
-      collapsed: true,
-    });
-    map.addControl(basemapControl, config.controls.basemapSwitcher.position);
-  }
-
-  return { map, vectorControl, layerControl };
+  return { map, vectorControl, layerControl, controlGrid };
 }

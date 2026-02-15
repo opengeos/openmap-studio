@@ -1,4 +1,5 @@
 import 'maplibre-gl/dist/maplibre-gl.css';
+import 'maplibre-gl-components/style.css';
 import './style.css';
 import { createLandingPage } from './landing';
 import { initMap } from './map';
@@ -48,6 +49,35 @@ function showLandingPage(config?: MapConfig): void {
 }
 
 /**
+ * Called when the user clicks the Home button. If there are unsaved changes (Electron),
+ * prompts to save before going to the landing page.
+ */
+function onHomeClick(): void {
+  const electronAPI = window.electronAPI;
+  if (!mapState.isDirty || !electronAPI) {
+    showLandingPage();
+    return;
+  }
+  electronAPI.showSaveBeforeLeaveDialog().then((choice) => {
+    if (choice === 'cancel') return;
+    if (choice === 'dontSave') {
+      showLandingPage();
+      return;
+    }
+    // choice === 'save'
+    if (mapState.currentFilePath) {
+      saveToFile(mapState.currentFilePath!).then(() => showLandingPage());
+    } else {
+      electronAPI.showSaveDialog(undefined).then((result) => {
+        if (!result.canceled && result.filePath) {
+          saveToFile(result.filePath).then(() => showLandingPage());
+        }
+      });
+    }
+  });
+}
+
+/**
  * Launches the map with the given configuration.
  *
  * @param config - The map configuration.
@@ -59,7 +89,7 @@ function launchMap(config: MapConfig): maplibregl.Map {
 
   console.log('[launchMap] initializing map with onLayerRename callback');
   // Initialize map with the config
-  const result = initMap('map', config, showLandingPage, {
+  const result = initMap('map', config, onHomeClick, {
     onLayerRename: (layerId, oldName, newName) => {
       console.log('[onLayerRename] layerId:', layerId, 'oldName:', oldName, 'newName:', newName);
 
