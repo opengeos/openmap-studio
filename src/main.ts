@@ -5,7 +5,7 @@ import { createLandingPage } from './landing';
 import { initMap } from './map';
 import { loadConfig, saveConfig, getDefaultConfig, type MapConfig } from './config';
 import { mapState, parseOpenMapFile, fileStateToConfig } from './map-state';
-import type { VectorDatasetControl } from 'maplibre-gl-components';
+import type { VectorDatasetControl, VectorDatasetLoadEvent } from 'maplibre-gl-components';
 import type { LayerControl } from 'maplibre-gl-layer-control';
 import type { VectorDatasetState } from './types/openmap-file';
 
@@ -118,7 +118,7 @@ function launchMap(config: MapConfig): maplibregl.Map {
 
   // Set up dataset event listeners if vector control is enabled
   if (vectorControl) {
-    vectorControl.on('load', (event) => {
+    vectorControl.on('load', (event: VectorDatasetLoadEvent) => {
       if (event.dataset && map) {
         // Check if this dataset already exists (e.g., when restoring from file)
         const existingIndex = mapState.datasets.findIndex(d => d.name === event.dataset!.filename);
@@ -161,7 +161,7 @@ function launchMap(config: MapConfig): maplibregl.Map {
             // Match by layer type (fill, line, circle, etc.)
             oldStyles.forEach(savedStyle => {
               // Find matching new layer by type
-              const matchingNewLayerId = newLayerIds.find(newId => {
+              const matchingNewLayerId = newLayerIds.find((newId: string) => {
                 const layer = map!.getLayer(newId);
                 return layer && layer.type === savedStyle.type;
               });

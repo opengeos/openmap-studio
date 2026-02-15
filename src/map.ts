@@ -1,5 +1,5 @@
 import maplibregl, { IControl } from 'maplibre-gl';
-import { LayerControl } from 'maplibre-gl-layer-control';
+import { LayerControl, type CustomLayerAdapter } from 'maplibre-gl-layer-control';
 import 'maplibre-gl-layer-control/style.css';
 import {
   addControlGrid,
@@ -104,7 +104,7 @@ export function initMap(
 
   if (config.controlGridEnabled) {
     // All 26 default controls minus vectorDataset; we add our own with custom options
-    const gridControlNames = ALL_DEFAULT_CONTROLS.filter((n) => n !== 'vectorDataset');
+    const gridControlNames = ALL_DEFAULT_CONTROLS.filter((n: string) => n !== 'vectorDataset');
     controlGrid = addControlGrid(map as any, {
       title: 'Map Tools',
       position: 'top-right',
@@ -131,8 +131,8 @@ export function initMap(
     vectorControl = ourVectorControl;
 
     if (layerControl) {
-      const adapters = controlGrid.getAdapters();
-      adapters.forEach((adapter) => {
+      const adapters = controlGrid.getAdapters() as CustomLayerAdapter[];
+      adapters.forEach((adapter: CustomLayerAdapter) => {
         layerControl!.registerCustomAdapter(adapter);
       });
     }
