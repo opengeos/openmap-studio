@@ -17,6 +17,11 @@ html, body {
   display: none;
 }
 
+#map.drop-active {
+  outline: 3px dashed #667eea;
+  outline-offset: -10px;
+}
+
 /* Landing Page Styles */
 #landing {
   width: 100%;

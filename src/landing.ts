@@ -95,6 +95,18 @@ function buildLandingHTML(config: MapConfig): string {
             <input type="checkbox" name="control-grid" id="control-grid" data-control="controlGrid" ${config.controlGridEnabled ? 'checked' : ''} />
             <span class="control-label">Control Grid</span>
           </label>
+          <label class="control-item">
+            <input type="checkbox" name="control-vector" id="control-vector" data-control="vectorControl" ${config.vectorControlEnabled ? 'checked' : ''} />
+            <span class="control-label">Vector Dataset (local files)</span>
+          </label>
+          <label class="control-item">
+            <input type="checkbox" name="control-scale" id="control-scale" data-control="scaleBar" ${config.scaleBarEnabled ? 'checked' : ''} />
+            <span class="control-label">Scale Bar</span>
+          </label>
+          <label class="control-item">
+            <input type="checkbox" name="control-mouse" id="control-mouse" data-control="mousePosition" ${config.mousePositionEnabled ? 'checked' : ''} />
+            <span class="control-label">Mouse Position</span>
+          </label>
         </div>
       </section>
 
@@ -162,9 +174,12 @@ function setupBasemapSelection(
 function setupControlToggles(container: HTMLElement, config: MapConfig): void {
   container.querySelectorAll<HTMLInputElement>('input[data-control]').forEach((input) => {
     input.addEventListener('change', () => {
-      const key = input.dataset.control as 'layerControl' | 'controlGrid';
+      const key = input.dataset.control as 'layerControl' | 'controlGrid' | 'vectorControl' | 'scaleBar' | 'mousePosition';
       if (key === 'layerControl') config.layerControlEnabled = input.checked;
       if (key === 'controlGrid') config.controlGridEnabled = input.checked;
+      if (key === 'vectorControl') config.vectorControlEnabled = input.checked;
+      if (key === 'scaleBar') config.scaleBarEnabled = input.checked;
+      if (key === 'mousePosition') config.mousePositionEnabled = input.checked;
     });
   });
 }

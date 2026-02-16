@@ -3,11 +3,11 @@ import { LayerControl, type CustomLayerAdapter } from 'maplibre-gl-layer-control
 import 'maplibre-gl-layer-control/style.css';
 import {
   addControlGrid,
-  ALL_DEFAULT_CONTROLS,
   VectorDatasetControl,
   type ControlGrid,
 } from 'maplibre-gl-components';
 import type { MapConfig } from './config';
+import { ScaleBarControl, MousePositionControl } from './extra-controls';
 
 // Exclude internal helper layers created by drawing/analysis controls.
 const EXCLUDE_LAYERS: string[] = [
@@ -18,6 +18,22 @@ const EXCLUDE_LAYERS: string[] = [
   'gm_*',
   'inspect-highlight-*',
   'measure-*',
+];
+
+// Curated controls focused on desktop GIS workflows for local + cloud-native data.
+const DEFAULT_GIS_CONTROLS: string[] = [
+  'navigation',
+  'fullscreen',
+  'search',
+  'measure',
+  'inspect',
+  'bookmark',
+  'addVector',
+  'pmtilesLayer',
+  'cogLayer',
+  'stacSearch',
+  'planetaryComputer',
+  'print',
 ];
 
 /**
@@ -83,7 +99,7 @@ export interface InitMapOptions {
 export function initMap(
   container: string,
   config: MapConfig,
-  onSettings: () => void,
+  onHome: () => void,
   options?: InitMapOptions
 ): InitMapResult {
   const map = new maplibregl.Map({
@@ -98,7 +114,15 @@ export function initMap(
   let controlGrid: ControlGrid | null = null;
 
   // Always add the home control
-  map.addControl(new HomeControl(onSettings), 'top-left');
+  map.addControl(new HomeControl(onHome), 'top-left');
+
+  if (config.scaleBarEnabled) {
+    map.addControl(new ScaleBarControl(), 'bottom-left');
+  }
+
+  if (config.mousePositionEnabled) {
+    map.addControl(new MousePositionControl(), 'bottom-right');
+  }
 
   let layerControl: LayerControl | null = null;
 
@@ -116,12 +140,10 @@ export function initMap(
   }
 
   if (config.controlGridEnabled) {
-    // All 26 default controls minus vectorDataset; we add our own with custom options
-    const gridControlNames = ALL_DEFAULT_CONTROLS.filter((n: string) => n !== 'vectorDataset');
     controlGrid = addControlGrid(map as any, {
       title: 'Map Tools',
       position: 'top-right',
-      defaultControls: [...gridControlNames],
+      defaultControls: [...DEFAULT_GIS_CONTROLS],
       basemapStyleUrl: config.basemapStyleUrl,
       excludeLayers: EXCLUDE_LAYERS,
       collapsible: true,
@@ -129,7 +151,16 @@ export function initMap(
       showRowColumnControls: true,
     });
 
-    const ourVectorControl = new VectorDatasetControl({
+    if (layerControl) {
+      const adapters = controlGrid.getAdapters() as CustomLayerAdapter[];
+      adapters.forEach((adapter: CustomLayerAdapter) => {
+        layerControl!.registerCustomAdapter(adapter);
+      });
+    }
+  }
+
+  if (config.vectorControlEnabled) {
+    const localVectorControl = new VectorDatasetControl({
       fitBounds: true,
       fitBoundsPadding: 50,
       defaultStyle: {
@@ -141,15 +172,14 @@ export function initMap(
         circleColor: '#3388ff',
       },
     });
-    controlGrid.addControl(ourVectorControl);
-    vectorControl = ourVectorControl;
 
-    if (layerControl) {
-      const adapters = controlGrid.getAdapters() as CustomLayerAdapter[];
-      adapters.forEach((adapter: CustomLayerAdapter) => {
-        layerControl!.registerCustomAdapter(adapter);
-      });
+    if (controlGrid) {
+      controlGrid.addControl(localVectorControl);
+    } else {
+      map.addControl(localVectorControl as unknown as IControl, 'top-right');
     }
+
+    vectorControl = localVectorControl;
   }
 
   return { map, vectorControl, layerControl, controlGrid };

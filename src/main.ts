@@ -7,6 +7,7 @@ import { loadConfig, saveConfig, getDefaultConfig, type MapConfig } from './conf
 import { mapState, parseOpenMapFile, fileStateToConfig } from './map-state';
 import type { VectorDatasetControl, VectorDatasetLoadEvent } from 'maplibre-gl-components';
 import type { LayerControl } from 'maplibre-gl-layer-control';
+import shp from 'shpjs';
 import type { VectorDatasetState } from './types/openmap-file';
 
 let map: maplibregl.Map | null = null;
@@ -87,17 +88,14 @@ function launchMap(config: MapConfig): maplibregl.Map {
   // Store config in state manager
   mapState.config = config;
 
-  console.log('[launchMap] initializing map with onLayerRename callback');
   // Initialize map with the config
   const result = initMap('map', config, onHomeClick, {
-    onLayerRename: (layerId, oldName, newName) => {
-      console.log('[onLayerRename] layerId:', layerId, 'oldName:', oldName, 'newName:', newName);
+    onLayerRename: (layerId, _oldName, newName) => {
 
       // Find the dataset that contains this layer ID
       const datasetIndex = mapState.datasets.findIndex(d =>
         d.layerIds?.includes(layerId)
       );
-      console.log('[onLayerRename] found datasetIndex:', datasetIndex);
 
       if (datasetIndex !== -1) {
         const updatedDatasets = [...mapState.datasets];
@@ -107,7 +105,6 @@ function launchMap(config: MapConfig): maplibregl.Map {
         };
         mapState.datasets = updatedDatasets;
         mapState.isDirty = true;
-        console.log('[onLayerRename] updated dataset name to:', newName);
       }
     },
   });
@@ -144,7 +141,6 @@ function launchMap(config: MapConfig): maplibregl.Map {
               if (lc.state.layerStates[layerId]) {
                 lc.state.layerStates[layerId].name = existingDataset.name;
               }
-              console.log('[dataset load] set custom name for layer:', layerId, '->', existingDataset.name);
             });
             // Force LayerControl to refresh its display
             setTimeout(() => {
@@ -187,18 +183,15 @@ function launchMap(config: MapConfig): maplibregl.Map {
                     }
                   });
                 }
-                console.log('[dataset load] restored style for layer:', matchingNewLayerId);
               }
             });
           }
 
-          console.log('[dataset load] updated layerIds for existing dataset:', event.dataset!.filename);
           return;
         }
 
         // Get the GeoJSON data from the map source
         const source = map.getSource(event.dataset.sourceId);
-        console.log('[dataset load] id:', event.dataset.id, 'filename:', event.dataset.filename, 'sourceId:', event.dataset.sourceId, 'layerIds:', event.dataset.layerIds);
         if (source && source.type === 'geojson') {
           // Access the internal data - MapLibre stores it in _data
           const geojsonData = (source as maplibregl.GeoJSONSource).serialize().data;
@@ -212,7 +205,6 @@ function launchMap(config: MapConfig): maplibregl.Map {
             };
             mapState.datasets = [...mapState.datasets, datasetState];
             mapState.isDirty = true;
-            console.log('[dataset load] stored dataset with name:', event.dataset.filename, 'layerIds:', event.dataset.layerIds);
           }
         }
       }
@@ -436,7 +428,112 @@ function setupOpenFileListener(): void {
   }) as EventListener);
 }
 
+function isGeoJSON(value: unknown): value is GeoJSON.GeoJSON {
+  return typeof value === 'object' && value !== null && 'type' in (value as Record<string, unknown>);
+}
+
+function mergeGeoJSONCollections(items: GeoJSON.GeoJSON[]): GeoJSON.FeatureCollection {
+  const features: GeoJSON.Feature[] = [];
+  for (const item of items) {
+    if (item.type === 'FeatureCollection') {
+      features.push(...item.features);
+    } else if (item.type === 'Feature') {
+      features.push(item as GeoJSON.Feature);
+    }
+  }
+
+  return {
+    type: 'FeatureCollection',
+    features,
+  };
+}
+
+async function loadLocalVectorFile(file: File): Promise<void> {
+  if (!vectorControl) {
+    alert('Vector control is disabled. Enable "Vector Dataset" in the landing page settings.');
+    return;
+  }
+
+  const name = file.name;
+  const lower = name.toLowerCase();
+
+  try {
+    if (lower.endsWith('.geojson') || lower.endsWith('.json')) {
+      const text = await file.text();
+      const parsed = JSON.parse(text);
+      if (!isGeoJSON(parsed)) {
+        throw new Error('JSON file is not valid GeoJSON');
+      }
+      vectorControl.loadGeoJSON(parsed, name);
+      return;
+    }
+
+    if (lower.endsWith('.zip')) {
+      const buffer = await file.arrayBuffer();
+      const parsed = await shp(buffer);
+      const geojson = Array.isArray(parsed)
+        ? mergeGeoJSONCollections(parsed.filter(isGeoJSON))
+        : parsed;
+
+      if (!isGeoJSON(geojson)) {
+        throw new Error('ZIP did not produce valid GeoJSON');
+      }
+
+      vectorControl.loadGeoJSON(geojson, name.replace(/\.zip$/i, ''));
+      return;
+    }
+
+    alert('Unsupported file type. Drop .geojson/.json or zipped shapefile (.zip).');
+  } catch (error) {
+    console.error('Failed to load local vector file:', error);
+    alert(`Failed to load ${name}: ${(error as Error).message}`);
+  }
+}
+
+function setupMapDragAndDrop(): void {
+  const mapEl = document.getElementById('map');
+  if (!mapEl) return;
+
+  const preventDefault = (event: DragEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+  };
+
+  mapEl.addEventListener('dragenter', (event) => {
+    preventDefault(event);
+    mapEl.classList.add('drop-active');
+  });
+
+  mapEl.addEventListener('dragover', preventDefault);
+
+  mapEl.addEventListener('dragleave', (event) => {
+    preventDefault(event);
+    mapEl.classList.remove('drop-active');
+  });
+
+  mapEl.addEventListener('drop', (event) => {
+    preventDefault(event);
+    mapEl.classList.remove('drop-active');
+
+    const file = event.dataTransfer?.files?.[0];
+    if (!file) return;
+
+    const lower = file.name.toLowerCase();
+    if (lower.endsWith('.openmap')) {
+      file.text()
+        .then((content) => handleOpenMap(file.name, content))
+        .catch((error) => {
+          console.error('Failed to open dropped .openmap file:', error);
+        });
+      return;
+    }
+
+    void loadLocalVectorFile(file);
+  });
+}
+
 // Initialize the application
 setupMenuListeners();
 setupOpenFileListener();
+setupMapDragAndDrop();
 showLandingPage();

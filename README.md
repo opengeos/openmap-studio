@@ -9,8 +9,11 @@ A cross-platform desktop application for interactive maps using MapLibre GL JS, 
 
 ## Features
 
-- Full-screen interactive map with OpenStreetMap tiles
-- Pan, zoom, and navigation controls
+- Desktop-first MapLibre GIS experience (Electron + TypeScript)
+- Local vector data loading (`.geojson`, `.json`, zipped shapefiles) via Vector Dataset tools and drag-and-drop
+- Cloud-native geospatial controls for PMTiles, COG, STAC search, and Planetary Computer
+- Layer management with rename + style persistence in `.openmap` project files
+- Optional scale bar and live mouse coordinate readout
 - Cross-platform support (Windows, macOS, Linux)
 - Hot reload development environment
 

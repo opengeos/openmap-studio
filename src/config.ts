@@ -10,6 +10,12 @@ export interface MapConfig {
   layerControlEnabled: boolean;
   /** Show Control Grid on the map (default true). */
   controlGridEnabled: boolean;
+  /** Show Vector Dataset control (local vector loading/editing). */
+  vectorControlEnabled: boolean;
+  /** Show scale bar control. */
+  scaleBarEnabled: boolean;
+  /** Show mouse position/zoom readout. */
+  mousePositionEnabled: boolean;
 }
 
 /**
@@ -79,6 +85,9 @@ export function getDefaultConfig(): MapConfig {
     initialZoom: 2,
     layerControlEnabled: true,
     controlGridEnabled: true,
+    vectorControlEnabled: true,
+    scaleBarEnabled: true,
+    mousePositionEnabled: true,
   };
 }
 
@@ -105,6 +114,9 @@ export function loadConfig(): MapConfig | null {
       initialZoom: parsed.initialZoom ?? 2,
       layerControlEnabled: parsed.layerControlEnabled ?? true,
       controlGridEnabled: parsed.controlGridEnabled ?? true,
+      vectorControlEnabled: parsed.vectorControlEnabled ?? true,
+      scaleBarEnabled: parsed.scaleBarEnabled ?? true,
+      mousePositionEnabled: parsed.mousePositionEnabled ?? true,
     };
   } catch {
     return null;
